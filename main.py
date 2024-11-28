@@ -50,26 +50,67 @@ def verify(model, detection_threshold, verification_threshold):
     
     return results, verified
 
+cap = None  # Global variable to manage the webcam
 
-while cap.isOpened():
-    ret, frame = cap.read()
-    frame = frame[120:120+250,200:200+250, :]
-    
-    cv2.imshow('Verification', frame)
-    
-    # Verification trigger
-    if cv2.waitKey(10) & 0xFF == ord('v'):
-        # Save input image to application_data/input_image folder 
-        cv2.imwrite(os.path.join('application_data', 'input_image', 'input_image.jpg'), frame)
-        # Run verification
-        results, verified = verify(model, 0.4, 0.4)
-        print(verified)
-    
-    if cv2.waitKey(10) & 0xFF == ord('q'):
+while True:
+    # Taking input from the user
+    user_input = input("Press 1 to enroll face, 2 to verify, or 0 to exit: ")
+
+    if user_input == "1":
+                #-----------capture video-------------
+        # access web cam to capture video
+        cap = cv2.VideoCapture(0)
+
+        if not cap.isOpened():
+            print("unable to access camera")
+
+        else:
+            print("camera accessed successfully")
+
+        
+        enroll_face(20, pos_path="application_data/input_image", anchor_path="application_data/verification_image", pos_req=False, cap=cap)
+
+    elif user_input == "2":
+        if cap is None or not cap.isOpened():
+            cap = cv2.VideoCapture(0)  # Open the webcam if not already opened
+        
+        print("Press 'v' to verify, 'q' to quit verification mode.")
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if not ret:
+                print("Failed to capture image from webcam.")
+                break
+
+            # Cropping the frame (customize based on your requirement)
+            frame = frame[120:120+250, 200:200+250, :]
+            
+            # Display the frame
+            cv2.imshow('Verification', frame)
+            
+            key = cv2.waitKey(10) & 0xFF
+            if key == ord('v'):
+                # Save input image to input_image folder
+                input_image_path = os.path.join('application_data', 'input_image', 'input_image.jpg')
+                os.makedirs(os.path.dirname(input_image_path), exist_ok=True)
+                cv2.imwrite(input_image_path, frame)
+                
+                # Run verification
+                results, verified = verify(model, 0.4, 0.4)  # Replace `None` with your model
+                print("Verified:", verified)
+            
+            elif key == ord('q'):
+                break
+
+    elif user_input == "0":
+        print("Exiting program...")
         break
-cap.release()
-cv2.destroyAllWindows()
-
+    else:
+        print("Invalid input. Please enter 1, 2, or 0.")
+    
+    # Release webcam and close windows if opened
+    if cap is not None and cap.isOpened():
+        cap.release()
+        cv2.destroyAllWindows()
 
 
 
