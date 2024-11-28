@@ -27,23 +27,16 @@ class MetricsLoggerCallback(tf.keras.callbacks.Callback):
         df = pd.DataFrame(self.metrics_history)
         df.to_excel(self.log_file, index=False)
 
-#-----------capture video-------------
-# access web cam to capture video
-cap = cv2.VideoCapture(0)
 
-if not cap.isOpened():
-    print("unable to access camera")
-
-else:
-    print("camera accessed successfully")
 
 # capture image for anchor and positive
-def enroll_face(img_no: int, pos_path:str, anchor_path:str, pos_req: bool):
+def enroll_face(img_no: int, pos_path:str, anchor_path:str, pos_req: bool,cap):
 
     framecount=0
     os.makedirs(pos_path, exist_ok=True)
     os.makedirs(anchor_path, exist_ok=True)
-
+    print("keep your face in the frame and press C")
+    print("rotate your face so it can capture all areas") 
     if pos_req:
         img_no = img_no*2
     while True:
@@ -52,7 +45,7 @@ def enroll_face(img_no: int, pos_path:str, anchor_path:str, pos_req: bool):
         if not ret:
             print("error: unable to capture frame")
             break
-
+           
         cv2.imshow("video feed",frame[0:250,150:400]) # to visualize video 
 
         key = cv2.waitKey(1) & 0xFF 
@@ -93,14 +86,13 @@ def enroll_face(img_no: int, pos_path:str, anchor_path:str, pos_req: bool):
                         
 
                 # Display the frame while saving
-                cv2.imshow("Video Feed", frame)
+                # cv2.imshow("Video Feed", frame)
 
                 # Break saving loop if 'q' is pressed
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    print("Exiting...")
-                    break
-    cap.release()
-    cap.destroyALLWindows()
+                if framecount == img_no-2:
+                    cap.release()
+                    cv2.destroyAllWindows()
+    
 
 
 def preprocess(file_path):
