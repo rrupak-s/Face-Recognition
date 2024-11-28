@@ -52,20 +52,6 @@ opt = tf.keras.optimizers.Adam(1e-4) # 0.0001
 
 siamese_model = make_siamese_model()
 
-# checkpoint_dir = './training_checkpoints'
-# checkpoint_prefix = os.path.join(checkpoint_dir, 'ckpt')
-# epoch_var = tf.Variable(0, dtype=tf.int64, name='epoch')  # Variable to track epoch
-# checkpoint = tf.train.Checkpoint(opt=opt, siamese_model=siamese_model, epoch=epoch_var)
-
-# latest_checkpoint = tf.train.latest_checkpoint(checkpoint_dir)
-
-# if latest_checkpoint:
-#     print(f"Restoring from {latest_checkpoint}...")
-#     checkpoint.restore(latest_checkpoint)
-# else:
-#     print("No checkpoint found. Starting from scratch.")
-
-
 train(train_data, EPOCHS,siamese_model,binary_cross_loss,opt)
 
 siamese_model.save('siamesemodel.keras')
